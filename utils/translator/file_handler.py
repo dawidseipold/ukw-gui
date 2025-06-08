@@ -7,7 +7,6 @@ class FileHandler:
         lines = []
         batch = []
 
-        # Przetwarzanie pliku wejściowego
         with open(input_path, 'r', encoding='utf-8') as f_in:
             for line in f_in:
                 batch.append(line.rstrip('\n'))
@@ -16,12 +15,10 @@ class FileHandler:
                     lines.extend(processed_batch)
                     batch = []
 
-            # Przetwarzanie pozostałych linii
             if batch:
                 processed_batch = process_batch_function(batch)
                 lines.extend(processed_batch)
 
-        # Zapis do pliku wyjściowego
         with open(output_path, 'w', encoding='utf-8') as f_out:
             for line in lines:
                 f_out.write(f"{line}\n")

@@ -84,7 +84,6 @@ class DocumentProcessor:
             print(f"Nieobsługiwany format pliku: {file_path}")
             return ""
 
-        # Zapisanie tekstu do pliku wyjściowego
         if text:
             base_name = os.path.splitext(os.path.basename(file_path))[0]
             output_path = os.path.join(self.output_dir, f"{base_name}.txt")
@@ -113,13 +112,11 @@ class DocumentProcessor:
             print("Brak przetworzonych plików do wygenerowania raportu.")
             return
 
-        # Generowanie raportu TXT
         report_txt_path = os.path.join(self.output_dir, "processing_report.txt")
         with open(report_txt_path, 'w', encoding='utf-8') as f:
             f.write(generate_text_report(self.processed_files))
         print(f"Wygenerowano raport tekstowy: {report_txt_path}")
 
-        # Generowanie raportu CSV
         report_csv_path = os.path.join(self.output_dir, "processing_report.csv")
         with open(report_csv_path, 'w', newline='', encoding='utf-8') as csvfile:
             fieldnames = self.processed_files[0].keys()

@@ -39,7 +39,6 @@ class Translator:
         lines = []
         processed_lines = 0
 
-        # Przetwarzanie pliku wejściowego
         with open(input_path, 'r', encoding='utf-8') as f_in:
             for line in f_in:
                 processed_line = self.process_line(line.rstrip('\n'))
@@ -47,7 +46,6 @@ class Translator:
                 processed_lines += 1
                 update_progress(processed_lines)
 
-        # Zapis do pliku wyjściowego
         with open(output_path, 'w', encoding='utf-8') as f_out:
             for line in lines:
                 f_out.write(f"{line}\n")

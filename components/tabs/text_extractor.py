@@ -8,11 +8,9 @@ class TextExtractorTab(tk.Frame):
         super().__init__(parent, *args, **kwargs)
         self.processor = None
 
-        # Nagłówek
         self.label = tk.Label(self, text="Ekstrakcja tekstu z dokumentów", font=("Arial", 16))
         self.label.pack(pady=10)
 
-        # Wybór plików wejściowych
         self.input_button = tk.Button(
             self, text="Wybierz pliki wejściowe", command=self.browse_input_files
         )
@@ -21,7 +19,6 @@ class TextExtractorTab(tk.Frame):
         self.input_path_label = tk.Label(self, text="Nie wybrano plików", fg="gray")
         self.input_path_label.pack(pady=5)
 
-        # Wybór katalogu wyjściowego
         self.output_button = tk.Button(
             self, text="Wybierz katalog wyjściowy", command=self.browse_output_dir
         )
@@ -30,13 +27,11 @@ class TextExtractorTab(tk.Frame):
         self.output_path_label = tk.Label(self, text="Nie wybrano katalogu", fg="gray")
         self.output_path_label.pack(pady=5)
 
-        # Przycisk przetwarzania
         self.process_button = tk.Button(
             self, text="Przetwarzaj", command=self.start_processing, bg="green", fg="black"
         )
         self.process_button.pack(pady=20)
 
-        # Ścieżki do plików
         self.input_files = None
         self.output_dir = None
 
@@ -86,14 +81,11 @@ class TextExtractorTab(tk.Frame):
         Przetwarza wybrane pliki i generuje raporty.
         """
         try:
-            # Przetwarzanie plików
             for file_path in self.input_files:
                 self.processor.process_file(file_path)
 
-            # Generowanie raportów (TXT i CSV)
             self.processor.generate_report_file()
 
-            # Wyświetlenie komunikatu o sukcesie
             messagebox.showinfo("Sukces", "Przetwarzanie zakończone pomyślnie! Raporty zostały wygenerowane.")
         except Exception as e:
             messagebox.showerror("Błąd", str(e))

@@ -5,6 +5,10 @@ from components.topmenu import TopMenu
 from components.tabs.translator import TranslatorTab
 from components.tabs.text_extractor import TextExtractorTab
 from components.tabs.image_classifier import ImageClassifierTab  # Import nowej zakładki
+from components.tabs.transcript import TranscriptTab
+from components.tabs.recorder import AudioEditorTab
+from components.tabs.tts import TTSTab
+
 
 # Tworzenie głównego okna aplikacji
 root = tk.Tk()
@@ -19,6 +23,9 @@ top_menu.pack(fill=tk.BOTH, expand=True)
 top_menu.add_tab("Tłumacz", TranslatorTab)
 top_menu.add_tab("Ekstraktor Tekstu", TextExtractorTab)
 top_menu.add_tab("Klasyfikator Obrazów", ImageClassifierTab)  # Dodanie zakładki klasyfikacji obrazów
+top_menu.add_tab("Transkrypcja", TranscriptTab)
+top_menu.add_tab("Nagrywanie", AudioEditorTab)
+top_menu.add_tab("TTS", TTSTab)
 
 # Ustawienie motywu
 sv_ttk.set_theme("light")

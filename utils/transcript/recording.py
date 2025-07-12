@@ -28,7 +28,7 @@ class RecordAudio:
         self.is_running: bool = False
         self.frames: list = []
         self.sample_count: int = 0
-        self.noise_profile = None  # Profil szumu do redukcji (ustawiany na początku)
+        self.noise_profile = None
 
         self.stationary = stationary
         self.prop_decrease = prop_decrease
@@ -170,9 +170,3 @@ class RecordAudio:
 if __name__ == "__main__":
     ob = RecordAudio(duration=10, prop_decrease=1.5)
     ob.recordWithNoiseReduction()
-
-
-# if __name__ == "__main__":
-#     ob = RecordAudio("sampler.wav", duration=10, prop_decrease=1.5)
-#     ob.recordNormalAudio()
-

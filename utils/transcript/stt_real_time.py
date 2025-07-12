@@ -2,7 +2,6 @@ import os
 import json
 import pyaudio
 import websocket
-import sys
 import requests
 from threading import Thread, Event
 from time import sleep, time
@@ -154,8 +153,6 @@ class GladiaRealTimeSTT:
         last_log_time = time()
         while self.is_running and not self.stop_event.is_set():
             try:
-                # *** ZMIENIONO: Usunięto 'timeout=0' ***
-                # To było powodem błędu TypeError: PyAudio.Stream.read() got an unexpected keyword argument 'timeout'
                 data = self.audio_stream.read(self.CHUNK, exception_on_overflow=False)
                 self.sample_count += len(data) // 2
 
@@ -167,8 +164,6 @@ class GladiaRealTimeSTT:
                 if self.is_running and self.web_socket and not self.stop_event.is_set():
                     self.web_socket.send(data, opcode=websocket.ABNF.OPCODE_BINARY)
 
-            # *** ZMIENIONO: Złapano ogólniejszy Exception zamiast pyaudio.PyAudioException ***
-            # Bo to było powodem AttributeError: module 'pyaudio' has no attribute 'PyAudioException'
             except Exception as e:
                 print(f'DEBUG: Błąd podczas przesyłania audio: {e}')
                 self.on_status_update(f'Błąd przesyłania audio: {e}', "red")

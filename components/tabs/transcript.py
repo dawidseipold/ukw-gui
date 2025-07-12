@@ -8,8 +8,6 @@ from utils.transcript.stt_from_file import GladiaFromFileSTT
 from utils.transcript.stt_real_time import GladiaRealTimeSTT
 
 
-# --- Klasa dla sekcji "Transkrypcja z pliku" ---
-# Ta klasa będzie dziedziczyć po tk.Frame i zawierać całą logikę i widżety dla transkrypcji z pliku.
 class FileTranscriptionSection(tk.Frame):
     def __init__(self, parent, *args, **kwargs):
         super().__init__(parent, *args, **kwargs)
@@ -193,9 +191,6 @@ class FileTranscriptionSection(tk.Frame):
         finally:
             self.transcribe_button.config(state=tk.NORMAL)
 
-
-# --- Klasa dla sekcji "Transkrypcja w czasie rzeczywistym" ---
-# Podobnie, dziedziczy po tk.Frame i zawiera widżety oraz logikę dla transkrypcji na żywo.
 class RealtimeTranscriptionSection(tk.Frame):
     def __init__(self, parent, *args, **kwargs):
         super().__init__(parent, *args, **kwargs)
@@ -222,7 +217,6 @@ class RealtimeTranscriptionSection(tk.Frame):
                   foreground=[("disabled", "#eeeeee"), ("!disabled", "black")])
 
     def create_widgets(self):
-        # Usunięto wewnętrzny nagłówek "Transkrypcja w czasie rzeczywistym"
 
         tk.Label(self, text="Wybierz urządzenie wejściowe:").pack(pady=5)
         self.device_var = tk.StringVar(self)
@@ -234,8 +228,6 @@ class RealtimeTranscriptionSection(tk.Frame):
         else:
             self.device_var.set("Brak urządzeń audio")
 
-        # Tworzenie OptionMenu
-        # Upewnij się, że self.device_var.get() jest pierwszym elementem *args, aby ustawić początkową wartość
         self.device_menu = ttk.OptionMenu(self, self.device_var, self.device_var.get(),
                                           *[name for name, _ in self.device_options])
         self.device_menu.pack(pady=5)
@@ -260,13 +252,12 @@ class RealtimeTranscriptionSection(tk.Frame):
                                       state=tk.DISABLED, style="SaveButton.TButton")
         self.save_button.pack(pady=10)
 
-        # Jeżeli nie ma urządzeń, wyłącz przycisk Start
         if not self.device_options:
             self.start_button.config(state=tk.DISABLED)
 
     def _get_audio_input_devices(self):
         devices = []
-        p = None  # Upewnij się, że p jest zainicjowane
+        p = None
         try:
             p = pyaudio.PyAudio()
             info = p.get_host_api_info_by_index(0)
@@ -277,15 +268,15 @@ class RealtimeTranscriptionSection(tk.Frame):
                     devices.append((device_info.get('name'), i))
         except Exception as e:
             messagebox.showerror("Błąd audio", f"Nie udało się pobrać urządzeń audio: {e}")
-            # Nie ustawiaj statusu tutaj, to GUI się tym zajmie
+
         finally:
-            if p:  # Zakończ PyAudio tylko jeśli zostało zainicjowane
+            if p:
                 p.terminate()
         return devices
 
     def _get_selected_device_index(self):
         selected_name = self.device_var.get()
-        # Obsłuż przypadek "Brak urządzeń audio"
+
         if selected_name == "Brak urządzeń audio" and not self.device_options:
             return None
 
@@ -299,7 +290,7 @@ class RealtimeTranscriptionSection(tk.Frame):
             return
 
         selected_device_index = self._get_selected_device_index()
-        # Sprawdzamy, czy urządzenie zostało wybrane, jeśli lista urządzeń nie jest pusta
+
         if not self.device_options or (selected_device_index is None and self.device_options):
             messagebox.showerror("Błąd", "Proszę wybrać urządzenie wejściowe audio.")
             return
@@ -315,16 +306,15 @@ class RealtimeTranscriptionSection(tk.Frame):
 
         self.is_recording = True
         self.all_transcribed_lines = []
-        self.stop_event_received_from_thread = False  # Resetuj flagę
+        self.stop_event_received_from_thread = False
 
         try:
             self.gladia_realtime_stt = GladiaRealTimeSTT(
                 on_transcription=self._handle_realtime_transcription,
-                on_status_update=self._handle_status_update,  # Przekaż nowy callback
+                on_status_update=self._handle_status_update,
                 input_device_index=selected_device_index
             )
-            # Metoda run() w GladiaRealTimeSTT została zmieniona by tylko startować,
-            # więc uruchom ją w oddzielnym wątku.
+
             threading.Thread(target=self.gladia_realtime_stt.run, daemon=True).start()
             self.after(100, self._process_transcription_queue)
 
@@ -334,8 +324,7 @@ class RealtimeTranscriptionSection(tk.Frame):
             self.stop_recording_ui()
 
     def _run_gladia_realtime_stt(self):
-        # Ta metoda już nie jest potrzebna, bo bezpośrednio wywołujemy gladia_realtime_stt.run()
-        # z main loop, a ona sama zarządza startConnection.
+
         pass
 
     def _handle_realtime_transcription(self, text):
@@ -344,7 +333,7 @@ class RealtimeTranscriptionSection(tk.Frame):
     def _handle_status_update(self, message, color):
         """Callback dla aktualizacji statusu z GladiaRealTimeSTT."""
         self.transcription_queue.put(("status", (message, color)))
-        # Możesz także przekazać sygnał zatrzymania UI, jeśli status jest błędem lub zamknięciem
+
         if "Błąd" in message or "zamknięte" in message:
             self.transcription_queue.put(("stop_ui_from_thread", None))
 
@@ -362,11 +351,11 @@ class RealtimeTranscriptionSection(tk.Frame):
             elif item_type == "error":
                 messagebox.showerror("Błąd transkrypcji", data)
                 self.stop_recording_ui()
-            elif item_type == "stop_ui_from_thread":  # Jeśli wątek dał sygnał do zatrzymania UI
+            elif item_type == "stop_ui_from_thread":
                 self.stop_event_received_from_thread = True
                 self.stop_recording_ui()
 
-        # Kontynuuj sprawdzanie kolejki, jeśli nagrywanie jest aktywne
+
         if self.is_recording and not self.stop_event_received_from_thread:
             self.after(100, self._process_transcription_queue)
 
@@ -375,7 +364,7 @@ class RealtimeTranscriptionSection(tk.Frame):
         self.start_button.config(state=tk.NORMAL)
         self.stop_button.config(state=tk.DISABLED)
         self.save_button.config(state=tk.NORMAL if self.all_transcribed_lines else tk.DISABLED)
-        # Opcjonalnie zresetuj status tylko jeśli nie jest to status błędu od wątku
+
         if not self.stop_event_received_from_thread:
             self.status_label.config(text="Nagrywanie zakończone.", fg="green")
 
@@ -383,14 +372,10 @@ class RealtimeTranscriptionSection(tk.Frame):
         if not self.is_recording:
             return
 
-        self.is_recording = False  # Ustaw flagę is_recording na False zanim zamkniesz połączenie
+        self.is_recording = False
         if self.gladia_realtime_stt:
             self.gladia_realtime_stt.stopConnection()
-            # Nie ustawiaj self.gladia_realtime_stt = None natychmiast
-            # Daj czas wątkowi WebSocket na czyste zamknięcie.
-            # Zostanie zresetowane przy następnym start_recording
 
-        # Jeśli nie zatrzymaliśmy UI przez kolejkę (np. manualne kliknięcie Stop)
         if not self.stop_event_received_from_thread:
             self.stop_recording_ui()
 
@@ -419,21 +404,17 @@ class RealtimeTranscriptionSection(tk.Frame):
             self.status_label.config(text=f"Błąd zapisu transkrypcji: {e}", fg="red")
             messagebox.showerror("Błąd zapisu", f"Nie udało się zapisać transkrypcji: {e}")
 
-
-# --- KLASA KONTENEROWA DLA ZAKŁADEK TRANSLACYJNYCH (TranscriptTab) ---
 class TranscriptTab(tk.Frame):
     def __init__(self, parent, *args, **kwargs):
         super().__init__(parent, *args, **kwargs)
 
         tk.Label(self, text="Transkrypcja mowy na tekst (Gladia)", font=("Arial", 16, "bold")).pack(pady=10)
 
-        # Kontrolka do wyboru typu transkrypcji (radiobuttons)
         self.transcription_mode_var = tk.StringVar(value="file_transcription")  # Domyślnie: z pliku
 
         mode_frame = ttk.Frame(self)
         mode_frame.pack(pady=10)
 
-        # Radiobutton dla transkrypcji z pliku
         self.file_mode_radio = ttk.Radiobutton(
             mode_frame,
             text="Transkrypcja z pliku",
@@ -443,7 +424,7 @@ class TranscriptTab(tk.Frame):
         )
         self.file_mode_radio.pack(side=tk.LEFT, padx=10)
 
-        # Radiobutton dla transkrypcji w czasie rzeczywistym
+
         self.realtime_mode_radio = ttk.Radiobutton(
             mode_frame,
             text="Transkrypcja w czasie rzeczywistym",
@@ -453,32 +434,23 @@ class TranscriptTab(tk.Frame):
         )
         self.realtime_mode_radio.pack(side=tk.LEFT, padx=10)
 
-        # Kontenery dla obu typów transkrypcji
         self.file_transcription_section = FileTranscriptionSection(self)
         self.realtime_transcription_section = RealtimeTranscriptionSection(self)
 
-        # Pokaż domyślną sekcję (transkrypcja z pliku)
         self._show_selected_mode()
 
-        # Dodaj handler na zamknięcie głównego okna, aby zatrzymać nagrywanie na żywo
-        # To jest bardzo ważne, aby nie zostawiać procesów mikrofonu w tle
         parent.winfo_toplevel().protocol("WM_DELETE_WINDOW", self._on_window_close)
 
     def _show_selected_mode(self):
         selected_mode = self.transcription_mode_var.get()
 
-        # Ukryj wszystkie sekcje
         self.file_transcription_section.pack_forget()
         self.realtime_transcription_section.pack_forget()
 
-        # Zawsze zatrzymaj nagrywanie na żywo, gdy zmieniasz tryb
-        # Jest to obsłużone w _on_tab_change w poprzedniej strukturze,
-        # teraz robimy to bezpośrednio przy zmianie Radiobuttona
         if self.realtime_transcription_section.is_recording:
             print("Zmieniono tryb, zatrzymuję nagrywanie realtime.")
             self.realtime_transcription_section.stop_recording()
 
-        # Pokaż wybraną sekcję
         if selected_mode == "file_transcription":
             self.file_transcription_section.pack(expand=True, fill="both")
         elif selected_mode == "realtime_transcription":
@@ -489,24 +461,22 @@ class TranscriptTab(tk.Frame):
         if self.realtime_transcription_section.is_recording:
             print("Zamykanie okna, zatrzymuję nagrywanie realtime.")
             self.realtime_transcription_section.stop_recording()
-        self.master.destroy()  # Zamyka główne okno Tkinter
+        self.master.destroy()
 
 
-# Przykład użycia
+
 if __name__ == "__main__":
     root = tk.Tk()
     root.title("GUI - Tłumaczenie, Ekstrakcja tekstu i Klasyfikacja obrazów")
-    root.geometry("800x800")  # Zwiększono rozmiar, aby pomieścić więcej
+    root.geometry("800x800")
 
     main_notebook = ttk.Notebook(root)
     main_notebook.pack(expand=True, fill="both")
 
-    # Zakładka Transkrypcja (która zawiera radiobuttons i sekcje)
     transcript_main_tab = TranscriptTab(main_notebook)
     main_notebook.add(transcript_main_tab, text="Transkrypcja")
 
 
-    # Inne przykładowe zakładki
     class DummyTab(tk.Frame):
         def __init__(self, parent, text):
             super().__init__(parent)

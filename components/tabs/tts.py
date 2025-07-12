@@ -1,4 +1,3 @@
-# tts_tab.py (Poprawione tworzenie widżetów)
 import tkinter as tk
 from tkinter import filedialog, messagebox, ttk
 import threading
@@ -83,8 +82,6 @@ class TTSTab(tk.Frame):
                                          *self.voice_options.keys())
         self.voice_menu.grid(row=0, column=1, columnspan=2, padx=5, pady=5, sticky="ew")
 
-        # --- ZMIENIONO KOLEJNOŚĆ W TYM MIEJSCU ---
-        # Prędkość
         ttk.Label(controls_frame, text="Prędkość (0.7-1.2):", style="TLabel").grid(row=1, column=0, padx=5, pady=5,
                                                                                    sticky="w")
         self.speed_label = ttk.Label(controls_frame, text="1.0", style="TLabel")  # <--- WIDŻET TWORZONY WCZEŚNIEJ
@@ -94,7 +91,6 @@ class TTSTab(tk.Frame):
         self.speed_scale.set(1.0)
         self.speed_scale.grid(row=1, column=1, padx=5, pady=5, sticky="ew")
 
-        # Stabilność
         ttk.Label(controls_frame, text="Stabilność (0.0-1.0):", style="TLabel").grid(row=2, column=0, padx=5, pady=5,
                                                                                      sticky="w")
         self.stability_label = ttk.Label(controls_frame, text="0.5", style="TLabel")  # <--- WIDŻET TWORZONY WCZEŚNIEJ
@@ -104,7 +100,6 @@ class TTSTab(tk.Frame):
         self.stability_scale.set(0.5)
         self.stability_scale.grid(row=2, column=1, padx=5, pady=5, sticky="ew")
 
-        # Podobieństwo
         ttk.Label(controls_frame, text="Podobieństwo (0.0-1.0):", style="TLabel").grid(row=3, column=0, padx=5, pady=5,
                                                                                        sticky="w")
         self.similarity_label = ttk.Label(controls_frame, text="0.5", style="TLabel")  # <--- WIDŻET TWORZONY WCZEŚNIEJ
@@ -113,7 +108,6 @@ class TTSTab(tk.Frame):
                                           command=self._update_similarity_label)
         self.similarity_scale.set(0.5)
         self.similarity_scale.grid(row=3, column=1, padx=5, pady=5, sticky="ew")
-        # --- KONIEC ZMIANY KOLEJNOŚCI ---
 
         action_frame = ttk.LabelFrame(self, text="Akcje", padding=15)
         action_frame.pack(pady=10, padx=20, fill="x", expand=False)
